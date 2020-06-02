@@ -59,8 +59,28 @@ def _preprocess_data(data):
     # ---------------------------------------------------------------
 
     # ----------- Replace this code with your own preprocessing steps --------
-    predict_vector = feature_vector_df[['Pickup Lat','Pickup Long',
-                                        'Destination Lat','Destination Long']]
+     ## replace missing values
+    train_temp = feature_vector_df['Temperature'].median()
+    feature_vector_df['Temperature'].fillna(train_temp, inplace=True)
+
+    ## replace missing values
+    feature_vector_df['Precipitation in millimeters'].fillna(0, inplace=True)
+
+    # Categorical boolean mask
+    categorical_feature_mask = feature_vector_df.dtypes==object
+    # filter categorical columns using mask and turn it into a list
+    categorical_cols = feature_vector_df.columns[categorical_feature_mask].tolist()
+
+    # import labelencoder
+    from sklearn.preprocessing import LabelEncoder
+    # instantiate labelencoder object
+    le = LabelEncoder()
+
+    # apply le on categorical feature columns
+    feature_vector_df[categorical_cols] = feature_vector_df[categorical_cols].apply(lambda col: le.fit_transform(col))
+
+    predict_vector = feature_vector_df
+
     # ------------------------------------------------------------------------
 
     return predict_vector
